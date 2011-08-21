@@ -1,8 +1,6 @@
-(ns anthony.ircbot.core)
-
-(ns anthony.ircbot.ircclient
-  (:use [anthony.ircbot.irc])
-  (:require [anthony.ircbot.ircclient])) ; this feels like an ugly solution...
+(ns anthony.ircbot.core
+    (:use [anthony.ircbot.irc])
+  (:require [anthony.ircbot.ircclient :as ircclient]))
 
 (defn on-connected [conn-info source-info nick message] ; source info and args are irrelevant
   (let [{:keys [host writer]} conn-info]
@@ -34,7 +32,7 @@
   (let [{:keys [nick]} user-info]
     (println (str nick " has parted " channel " because " reason))))
 
-(connect
+(ircclient/connect
   {:host "irc.strictfp.com" :port 6667 :nick "lisp_bot" :user "bawtzor" :version "lisp_bot-1.0"}
   {:JOIN on-join
    :PRIVMSG on-message

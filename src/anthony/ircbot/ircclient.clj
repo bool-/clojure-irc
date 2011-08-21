@@ -3,7 +3,13 @@
     (java.io OutputStreamWriter BufferedWriter InputStreamReader BufferedReader))
   (:use [anthony.ircbot.irc]))
 
-(declare parse-message)
+(defn parse-message [event-functions connection-info operation line]
+  (let [keyword-operation (keyword operation)
+        source (get-arg line 0)
+        args-line (get-args-str line)]
+    (if (contains? event-functions keyword-operation)
+      (if (ifn? (keyword-operation event-functions))
+        (apply (keyword-operation event-functions) connection-info (get-user-info source) (seq (get-args args-line)))))))
 
 (defn connect [conn-info event-functions]
   (let [irc-sock (Socket. (:host conn-info) (:port conn-info))
@@ -23,11 +29,3 @@
             (parse-message event-functions connection-info operation irc-string-new)))
         (recur (.readLine irc-input)))))
   (println "Connection was closed =("))
-
-(defn parse-message [event-functions connection-info operation line]
-  (let [keyword-operation (keyword operation)
-        source (get-arg line 0)
-        args-line (get-args-str line)]
-    (if (contains? event-functions keyword-operation)
-      (if (ifn? (keyword-operation event-functions))
-        (apply (keyword-operation event-functions) connection-info (get-user-info source) (seq (get-args args-line)))))))
